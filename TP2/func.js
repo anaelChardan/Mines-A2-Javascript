@@ -31,13 +31,14 @@ const res1 = uncurry2((a, b) => a + b)(1, 2)
 // La fonction `map` applique son argument `fn` à tous les éléments
 // d'un tableau.  **Écrivez-la**.  **Essayez** de passer une chaîne de
 // caractères au lieu d'un tableau.  Que se passe-t-il ?
-function map(fn, col) {  
-  var result = col.reduce((acc, element) => {
-    acc.push(fn(element))
-    return acc
-  }, []);
-
-  return result
+function map(fn, col) {
+  var result = [];
+  
+  for(var i=0; i<col.length; i++) {
+    result.push(fn(col[i]))
+  }
+  
+  return result;
 }
 
 var testMap1 = map(function(n) { return n + n; }, [1,2,3]);
@@ -47,15 +48,15 @@ var testMap2 = map(function(n) { return n + n; }, '123');
 // prédicat (une fonction qui retourne un booléen).  **Écrivez** cette
 // fonction.  **Testez-la** avec un tableau, puis une chaîne.
 function filter(pred, col) {
-  var result = []
-  col.forEach(function(element) {
-    if (pred(element)) {
-      result.push(element)
+  var result = [];
+  
+  for(var i=0; i<col.length; i++) {
+    if (pred(col[i])) {
+      result.push(col[i])
     }
-  }, this);
-
+  }
+  
   return result;
-  // return col.filter(e => pred(e)) // TROLL
 }
 
 var testFilter = filter(function(n) { return n % 2 === 0; }, [1,2,3]);
@@ -63,23 +64,32 @@ var testFilter = filter(function(n) { return n % 2 === 0; }, [1,2,3]);
 // La fonction `find` renvoie le premier élément du tableau qui
 // satisfait le prédicat.  Si aucun élément ne satisfait le prédicat,
 // la fonction renvoie `undefined`.  **Écrivez-la**.
-function find(pred, col) {
-  var result = null;
-  col.forEach(function(element) {
-    if (pred(element)) {
-      result = element
+function find(pred, col) {  
+  var result = [];
+  
+  for(var i=0; i<col.length; i++) {
+    if (pred(col[i])) {
+      result.push(col[i])
     }
-    return
-  }, this);
+  }
+  
   return result;
 }
 
-find(function(n) { return n > 2 === 0; }, [1,2,3,4]);
+var testFind = find(function(n) { return n > 2 === 0; }, [1,2,3,4]);
+var testFind2 = find(function(n) { return n > 2 }, [1,2,3,4]);
 
 // La fonction `pluck` récupère la valeur de la propriété `prop` pour
 // tous les éléments d'un tableau.
 function pluck(prop, col) {
+  var result = []
+  for(var i=0; i<col.length; i++) {
+    if (col[i].hasOwnProperty(prop)) {
+      result.push(col[i][prop])
+    }
+  }
 
+  return result
 }
 
 var books = [
@@ -87,5 +97,7 @@ var books = [
   { title: 'Effective JavaScript', author: 'David Herman' },
 ];
 
-pluck('author', books);
-pluck('length', ['123', '4567']);
+var testPluck = pluck('author', books);
+var testPluck2 = pluck('length', ['123', '4567']);
+
+var end = null
