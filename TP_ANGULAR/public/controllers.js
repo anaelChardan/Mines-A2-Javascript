@@ -2,18 +2,20 @@
     'use strict';
 
     var controllersModule = angular.module('ContactApp.controllers', [])
-    
+
     controllersModule.controller('ContactsCtrl', ContactsCtrl)
 
-    ContactsCtrl.$inject = ['$scope', 'ContactsSrv'];
+    ContactsCtrl.$inject = ['$scope', 'ContactsSrv', '$rootScope'];
 
-    function ContactsCtrl($scope, ContactsSrv) {
-        $scope.contacts = ContactsSrv.getContacts();
-        $scope.deleteContact = (id) => {
-            $scope.$evalAsync(() => {ContactsSrv.deleteContact(id)});
-        }
+    function ContactsCtrl($scope, ContactsSrv, $rootScope) {
+        $rootScope.loading = true;
 
-        console.log($scope.orderBy);
+        ContactsSrv.getContacts().then(contacts => {
+            $scope.contacts = contacts;
+            $rootScope.loading = false;
+        });
+
+        $scope.deleteContact = ContactsSrv.deleteContact
     }
 
     controllersModule.controller('EditContactsCtrl', EditContactsCtrl)
@@ -22,14 +24,24 @@
 
     function EditContactsCtrl($scope, $routeParams, ContactsSrv, $location) {
         if ($routeParams.contactId) {
-            $scope.contact = ContactsSrv.getContact($routeParams.contactId)
+            $rootScope.loading = true;
+            ContactsSrv.getContact($routeParams.contactId)
+                .then(
+                result => {
+                    $scope.contact = result;
+                    $rootScope.loading = false;
+
+                })
         } else {
             $scope.creationMode = true;
         }
 
         $scope.createContact = (contact) => {
-            ContactsSrv.saveContact(contact);
-            $location.path('/contacts')
+            $rootScope.loading = true;
+            ContactsSrv.saveContact(contact).then(() => { 
+                $location.path('/contacts') 
+                $rootScope.loading = false;
+            });
         }
     }
 } ());

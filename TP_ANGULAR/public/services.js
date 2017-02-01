@@ -1,74 +1,54 @@
 (function () {
     'use strict';
-    
+
     var serviceModule = angular.module('ContactApp.services', [])
-    
+
     serviceModule.service('ContactsSrv', ContactsSrv)
 
-    ContactsSrv.$inject = [];
+    ContactsSrv.$inject = ['$http', '$log', '$q', '$timeout'];
 
-    function ContactsSrv() {
+    function ContactsSrv($http, $log, $q, $timeout) {
 
-        var contacts = [
-            {
-                "_id": "5891e3f9ec8d226eb81d1d5a",
-                "firstName": "Bray",
-                "lastName": "Minnie",
-                "phone": "(945) 424-2761"
-            },
-            {
-                "_id": "5891e3f9bf70d7b92e2de2fa",
-                "firstName": "Diann",
-                "lastName": "Cornelia",
-                "phone": "(974) 519-2648"
-            },
-            {
-                "_id": "5891e3f96b2c557ecdd03950",
-                "firstName": "Mattie",
-                "lastName": "Amalia",
-                "phone": "(974) 465-2415"
-            },
-            {
-                "_id": "5891e3f9d52a4c242aafc2b2",
-                "firstName": "Haynes",
-                "lastName": "Dean",
-                "phone": "(875) 434-2231"
-            },
-            {
-                "_id": "5891e3f9e8e11d528d8ee797",
-                "firstName": "Meyer",
-                "lastName": "Johnson",
-                "phone": "(931) 467-3017"
-            },
-            {
-                "_id": "5891e3f9679b1ba840ef11b9",
-                "firstName": "Ines",
-                "lastName": "Dickerson",
-                "phone": "(841) 532-2888"
-            },
-            {
-                "_id": "5891e3f9eab1631c7f225926",
-                "firstName": "Baker",
-                "lastName": "Debra",
-                "phone": "(817) 569-2214"
+        var contacts = null;
+
+        var loadContacts = () => {
+            if (!contacts) {
+                return $timeout(() => {
+                    return $http
+                        .get('/data/contacts.json')
+                        .then(
+                        (response) => {
+                            contacts = response.data;
+                            return contacts;
+                        },
+                        (error) => {
+                            $log.error(error);
+                        });
+                }, 2000)
+            } else {
+                return $q.resolve(contacts);
             }
-        ];
+        }
 
         this.getContacts = () => {
-            return contacts;
+            return loadContacts();
         }
 
         this.getContact = (id) => {
-            return contacts.find(c => c._id === id);
+            return loadContacts().then((response) => response.find(c => c._id === id));
         }
 
         this.saveContact = (contact) => {
-            contact._id = contacts.length+"";
-            contacts.push(contact);
+            return loadContacts().then(
+                (response) => {
+                    contact._id = String(response.length);
+                    response.push(contact)
+                }
+            );
         }
 
         this.deleteContact = (id) => {
-            return contacts.splice(contacts.findIndex(c => c._id == id), 1);
+            return loadContacts().then((result) => result.splice(result.findIndex(c => c._id == id), 1));
         }
 
     }
