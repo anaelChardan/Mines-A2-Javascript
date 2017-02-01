@@ -1,0 +1,14 @@
+<h1>Liste de contacts</h1>
+
+<input type="text" ng-model="filter">
+<select ng-model="orderBy">
+                <option value="firstName">First Name</option>
+                <option value="lastName">Last Name</option>
+            </select>
+<hr>
+<a href="/#/contacts/new">Nouveau</a>
+<div ng-repeat="contact in contacts | filter:{firstName:filter,lastName:filter} | orderBy:orderBy">
+    {{contact.firstName }} {{contact.lastName | uppercase}}
+    <a href="/#/contacts/edit/{{contact._id}}">Editer</a>
+    <button type="button" ng-click="deleteContact(contact._id)">Supprimer</button>
+</div>
